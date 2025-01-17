@@ -1,4 +1,4 @@
-import messages from '/labs/0/lang/messages/en/user.js';
+import messages from '/COMP4537/labs/0/lang/messages/en/user.js';
 
 // Button class represents each button in the game
 class Button {

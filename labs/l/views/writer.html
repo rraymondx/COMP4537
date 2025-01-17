@@ -1,11 +1,21 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lab1 Writer</title>
-    <script src="../js/writer.js"></script>
+    <title>Writer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="../js/writer.js" defer></script>
+    <script src="../lang/messages/en/user.js" defer></script>
 </head>
 <body>
-    
+    <div class="header">
+        <span id="last-saved-time">Last Saved: N/A</span>
+    </div>
+    <div id="notes-container">
+        <!-- Notes will be dynamically added here -->
+    </div>
+    <button id="add-note-btn">Add Note</button>
+    <button onclick="location.href='index.html'">Back</button>
 </body>
 </html>

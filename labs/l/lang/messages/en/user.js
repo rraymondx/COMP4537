@@ -1,4 +1,4 @@
-const messages = {
-    lastSaved: "Last Saved",
-    lastRetrieved: "Last Retrieved",
+const MESSAGES = {
+    LAST_SAVED: "Last saved at: ",
+    LAST_RETRIEVED: "Last retrieved at: ",
 };

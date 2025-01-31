@@ -1,51 +1,69 @@
-// server.js - Express server with basic file operations
-import express from 'express';
+import http from 'http';
 import fs from 'fs';
 import { getDate } from './modules/utils.js'; // Import utility function
 import messages from './lang/en/en.js'; // Import language messages
 
-const app = express();
-const PORT = process.env.PORT || 4000; // Set server port
-const FILE_PATH = './file.txt'; // File path for read/write operations
+const PORT = process.env.PORT || 4000;
+const FILE_PATH = './file.txt';
 
-// get for getDate functionality
-app.get('/COMP4537/labs/3/getDate/', (req, res) => {
-    const name = req.query.name || 'Guest'; // Get name from query param
-    const currentTime = getDate(); // Get current date/time
-    const responseMessage = messages.greeting.replace('%1', name).replace('%2', currentTime); 
+const server = http.createServer((req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    res.setHeader('Content-Type', 'text/html');
     
-    res.send(`<p style='color:blue;'>${responseMessage}</p>`); // Send formatted response
-});
-
-// get for writeFile functionality
-app.get('/COMP4537/labs/3/writeFile', (req, res) => {
-    const text = req.query.text; // Get text from query param
-    if(!text) {
-        // 500 = encountered unexpected condition
-        return res.status(500).send('Internal Server Error: Unable to write to file');
+    if (url.pathname === '/COMP4537/labs/3/getDate/') {
+        const name = url.searchParams.get('name') || 'Guest';
+        const currentTime = getDate();
+        const responseMessage = messages.greeting.replace('%1', name).replace('%2', currentTime);
+        res.writeHead(200);
+        res.end(`<p style='color:blue;'>${responseMessage}</p>`);
     }
-    fs.appendFile(FILE_PATH, text + '\n', (err) => {
-        if (err) {
-            return res.status(500).send('Internal Server Error: Unable to write to file');
+    
+    else if (url.pathname === '/COMP4537/labs/3/writeFile/') {
+        if (req.method !== 'GET') {
+            res.writeHead(405, { 'Content-Type': 'text/plain' });
+            res.end('405 Method Not Allowed');
+            return;
         }
-        res.send(`<p style='color:blue;'>Text appended successfully</p>`);
-    });
+    
+        const text = url.searchParams.get('text');
+        if (!text) {
+            res.writeHead(400);
+            res.end('400 Bad Request: Missing "text" parameter');
+            return;
+        }
+    
+        fs.appendFile(FILE_PATH, text + '\n', (err) => {
+            if (err) {
+                res.writeHead(500);
+                res.end('500 Internal Server Error: Unable to write to file');
+                return;
+            }
+            res.writeHead(200);
+            res.end("<p style='color:blue;'>Text appended successfully</p>");
+        });
+    }    
+    
+    else if (url.pathname.startsWith('/COMP4537/labs/3/readFile/')) {
+        const filename = url.pathname.split('/').pop();
+        const filePath = `./${filename}`;
+
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                res.end(`404 Not Found: File '${filename}' does not exist`);
+                return;
+            }
+            res.writeHead(200);
+            res.end(`<pre>${data}</pre>`);
+        });
+    }
+    
+    else {
+        res.writeHead(404);
+        res.end('404 Not Found');
+    }
 });
 
-// get for readFile functionality
-app.get('/COMP4537/labs/3/readFile/:filename', (req, res) => {
-    const filename = req.params.filename;  // Get filename from route param
-    const filePath = `./${filename}`; // Construct file path
-
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if(err) {
-            return res.status(404).send(`404 Not Found: File '${filename}' does not exist`);
-        }
-        res.send(`<pre>${data}</pre>`);
-    });
-});
-
-// Start the server and listen on the specified port
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

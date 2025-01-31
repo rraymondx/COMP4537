@@ -7,11 +7,11 @@ const PORT = process.env.PORT || 4000;
 const FILE_PATH = './file.txt';
 
 const server = http.createServer((req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}`);
-    res.setHeader('Content-Type', 'text/html');
+    const url = new URL(req.url, `http://${req.headers.host}`); // Parse the incoming request URL
+    res.setHeader('Content-Type', 'text/html'); // Set response type to HTML
     
     if (url.pathname === '/COMP4537/labs/3/getDate/') {
-        const name = url.searchParams.get('name') || 'Guest';
+        const name = url.searchParams.get('name') || 'Guest'; // Get 'name' parameter from query string, default to 'Guest'
         const currentTime = getDate();
         const responseMessage = messages.greeting.replace('%1', name).replace('%2', currentTime);
         res.writeHead(200);
@@ -25,7 +25,7 @@ const server = http.createServer((req, res) => {
             return;
         }
     
-        const text = url.searchParams.get('text');
+        const text = url.searchParams.get('text'); // Get 'text' parameter from query string
         if (!text) {
             res.writeHead(400);
             res.end('400 Bad Request: Missing "text" parameter');
@@ -44,8 +44,8 @@ const server = http.createServer((req, res) => {
     }    
     
     else if (url.pathname.startsWith('/COMP4537/labs/3/readFile/')) {
-        const filename = url.pathname.split('/').pop();
-        const filePath = `./${filename}`;
+        const filename = url.pathname.split('/').pop(); // Extract filename from URL path
+        const filePath = `./${filename}`; // Construct file path
 
         fs.readFile(filePath, 'utf8', (err, data) => {
             if (err) {
@@ -53,14 +53,14 @@ const server = http.createServer((req, res) => {
                 res.end(`404 Not Found: File '${filename}' does not exist`);
                 return;
             }
-            res.writeHead(200);
+            res.writeHead(200); // Set HTTP status to 200 (OK)
             res.end(`<pre>${data}</pre>`);
         });
     }
     
     else {
-        res.writeHead(404);
-        res.end('404 Not Found');
+        res.writeHead(404); // Set HTTP status to 404 (Not Found)
+        res.end('404 Not Found'); 
     }
 });
 

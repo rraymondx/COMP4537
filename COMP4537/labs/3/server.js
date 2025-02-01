@@ -20,10 +20,8 @@ class Server {
             this.getDateHandler(url, res);
         } else if (url.pathname === '/COMP4537/labs/3/writeFile/') {
             this.writeFileHandler(url, res);
-        } else if (url.pathname === '/COMP4537/labs/3/readFile/') {
-            // Extract the filename from the URL
-            const filename = url.pathname.split('/').pop();
-            this.readFileHandler(filename, res);
+        } else if (url.pathname.startsWith('/COMP4537/labs/3/readFile/')) { //using startsWith instead of ===
+            this.readFileHandler(url, res);
         } else {
             res.writeHead(404);
             res.end('404 Not Found');
@@ -61,9 +59,14 @@ class Server {
         const pathParts = url.pathname.split('/');
         const filename = pathParts[pathParts.length - 1]; // Extract filename from the last part of the path
         const filePath = `./${filename}`; // Construct the full file path
-        
+
+        console.log(`Requested URL: ${url.pathname}`);
+        console.log(`Extracted Filename: ${filename}`);
+        console.log(`File Path: ${filePath}`);
+
         fs.readFile(filePath, 'utf8', (err, data) => {
             if (err) {
+                console.error(`Error reading file: ${err.message}`);
                 res.writeHead(404);
                 res.end(`404 Not Found: File '${filename}' does not exist`);
                 return;
@@ -71,7 +74,7 @@ class Server {
             res.writeHead(200);
             res.end(`<pre>${data}</pre>`);
         });
-    }    
+    }
 
     start() {
         this.server.listen(this.port, () => {
